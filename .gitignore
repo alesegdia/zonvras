@@ -1,0 +1,49 @@
+# Build output
+build/
+out/
+
+# Conan
+.conan/
+graph_info.json
+
+# CMake
+CMakeUserPresets.json
+CMakeSettings.json
+
+# SPIR-V compiled shaders
+shaders/**/*.spv
+build/shaders/
+
+# Visual Studio
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+.vs/
+x64/
+x86/
+
+# VS Code
+.vscode/
+
+# Compiled binaries
+*.exe
+*.dll
+*.lib
+*.a
+*.o
+*.obj
+*.pdb
+*.ilk
+*.exp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
