@@ -8,7 +8,7 @@ public:
     explicit ShaderWatcher(const std::string& path);
 
     // Returns true once per modification (edge-triggered)
-    bool changed();
+    bool Changed();
 
 private:
     std::filesystem::path              m_path;

@@ -13,40 +13,40 @@
 #define SHADER_DIR "./"
 #endif
 
-void App::run() {
-    initWindow();
+void App::Run() {
+    InitWindow();
 
     m_vertSpv = std::string(SHADER_DIR) + "fullscreen.vert.spv";
 
-    m_vk.init(m_window);
-    discoverExamples();
+    m_vk.Init(m_window);
+    DiscoverExamples();
 
     if (m_examples.empty())
         throw std::runtime_error("No examples found in " + std::string(SHADER_DIR) + "examples/");
 
-    m_vk.buildPipeline(m_vertSpv, m_examples[0].fragSpv);
+    m_vk.BuildPipeline(m_vertSpv, m_examples[0].fragSpv);
     m_fragWatcher = std::make_unique<ShaderWatcher>(m_examples[0].fragSpv);
 
-    m_vk.initImGui();
+    m_vk.InitImGui();
 
-    mainLoop();
-    cleanup();
+    MainLoop();
+    Cleanup();
 }
 
-void App::initWindow() {
-    if (!glfwInit()) throw std::runtime_error("Failed to init GLFW");
+void App::InitWindow() {
+    if (!glfwInit()) throw std::runtime_error("Failed to Init GLFW");
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     m_window = glfwCreateWindow(1280, 720, "zonvras | shader playground", nullptr, nullptr);
     if (!m_window) throw std::runtime_error("Failed to create GLFW window");
 
     glfwSetWindowUserPointer(m_window, this);
-    glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);
-    glfwSetKeyCallback(m_window, keyCallback);
-    glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
+    glfwSetFramebufferSizeCallback(m_window, FramebufferResizeCallback);
+    glfwSetKeyCallback(m_window, KeyCallback);
+    glfwSetMouseButtonCallback(m_window, MouseButtonCallback);
 }
 
-void App::discoverExamples() {
+void App::DiscoverExamples() {
     std::string dir = std::string(SHADER_DIR) + "examples/";
     std::error_code ec;
     for (auto& entry : std::filesystem::directory_iterator(dir, ec)) {
@@ -65,12 +65,12 @@ void App::discoverExamples() {
         std::cout << "  - " << ex.name << "\n";
 }
 
-void App::switchToExample(int index) {
+void App::SwitchToExample(int index) {
     if (index < 0 || index >= (int)m_examples.size()) return;
     if (index == m_activeExample) return;
-    vkDeviceWaitIdle(m_vk.device);
+    vkDeviceWaitIdle(m_vk.m_device);
     try {
-        m_vk.buildPipeline(m_vertSpv, m_examples[index].fragSpv);
+        m_vk.BuildPipeline(m_vertSpv, m_examples[index].fragSpv);
         m_fragWatcher = std::make_unique<ShaderWatcher>(m_examples[index].fragSpv);
         m_activeExample = index;
         std::cout << "[switch] " << m_examples[index].name << "\n";
@@ -79,7 +79,7 @@ void App::switchToExample(int index) {
     }
 }
 
-void App::buildUI() {
+void App::BuildUI() {
     ImGui::SetNextWindowPos({10, 10}, ImGuiCond_Always);
     ImGui::SetNextWindowSize({220, 0}, ImGuiCond_Always);
     ImGui::SetNextWindowBgAlpha(0.75f);
@@ -90,7 +90,7 @@ void App::buildUI() {
     for (int i = 0; i < (int)m_examples.size(); i++) {
         bool selected = (i == m_activeExample);
         if (ImGui::Selectable(m_examples[i].name.c_str(), selected))
-            switchToExample(i);
+            SwitchToExample(i);
         if (selected)
             ImGui::SetItemDefaultFocus();
     }
@@ -103,7 +103,7 @@ void App::buildUI() {
     ImGui::End();
 }
 
-void App::mainLoop() {
+void App::MainLoop() {
     m_lastTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(m_window)) {
@@ -114,14 +114,14 @@ void App::mainLoop() {
         m_lastTime = now;
         m_time    += dt;
 
-        handleInput(dt);
+        HandleInput(dt);
 
         // Hot-reload: rebuild pipeline when the active .spv changes on disk
-        if (m_fragWatcher && m_fragWatcher->changed()) {
+        if (m_fragWatcher && m_fragWatcher->Changed()) {
             std::cout << "[hot-reload] " << m_examples[m_activeExample].name << "\n";
-            vkDeviceWaitIdle(m_vk.device);
+            vkDeviceWaitIdle(m_vk.m_device);
             try {
-                m_vk.buildPipeline(m_vertSpv, m_examples[m_activeExample].fragSpv);
+                m_vk.BuildPipeline(m_vertSpv, m_examples[m_activeExample].fragSpv);
                 std::cout << "[hot-reload] OK\n";
             } catch (std::exception& e) {
                 std::cerr << "[hot-reload] Error: " << e.what() << "\n";
@@ -132,7 +132,7 @@ void App::mainLoop() {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        buildUI();
+        BuildUI();
         ImGui::Render();
 
         // Build push constants
@@ -141,26 +141,26 @@ void App::mainLoop() {
         int fw, fh;
         glfwGetFramebufferSize(m_window, &fw, &fh);
         pc.resolution = {(float)fw, (float)fh};
-        pc.camPos     = m_camera.position;
-        pc.camRot     = { m_camera.orientation.w,
-                          m_camera.orientation.x,
-                          m_camera.orientation.y,
-                          m_camera.orientation.z };
+        pc.camPos     = m_camera.m_position;
+        pc.camRot     = { m_camera.m_orientation.w,
+                          m_camera.m_orientation.x,
+                          m_camera.m_orientation.y,
+                          m_camera.m_orientation.z };
 
-        if (!m_vk.drawFrame(pc)) {
+        if (!m_vk.DrawFrame(pc)) {
             int w, h;
             glfwGetFramebufferSize(m_window, &w, &h);
             while (w == 0 || h == 0) {
                 glfwWaitEvents();
                 glfwGetFramebufferSize(m_window, &w, &h);
             }
-            m_vk.recreateSwapchain(w, h);
-            m_vk.buildPipeline(m_vertSpv, m_examples[m_activeExample].fragSpv);
+            m_vk.RecreateSwapchain(w, h);
+            m_vk.BuildPipeline(m_vertSpv, m_examples[m_activeExample].fragSpv);
         }
     }
 }
 
-void App::handleInput(float dt) {
+void App::HandleInput(float dt) {
     float fwd = 0.f, rgt = 0.f, up = 0.f;
     bool  fast  = glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
     float speed = fast ? 10.f : 3.f;
@@ -172,7 +172,7 @@ void App::handleInput(float dt) {
     if (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS) up  += 1.f;
     if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) up  -= 1.f;
 
-    m_camera.processKeyboard(fwd, rgt, up, dt, speed);
+    m_camera.ProcessKeyboard(fwd, rgt, up, dt, speed);
 
     if (m_captureMouse) {
         double mx, my;
@@ -181,20 +181,20 @@ void App::handleInput(float dt) {
         float dx = (float)(mx - m_lastMouseX);
         float dy = (float)(my - m_lastMouseY);
         m_lastMouseX = mx; m_lastMouseY = my;
-        m_camera.processMouse(dx, dy);
+        m_camera.ProcessMouse(dx, dy);
     }
 }
 
-void App::cleanup() {
-    m_vk.destroy();
+void App::Cleanup() {
+    m_vk.Destroy();
     glfwDestroyWindow(m_window);
     glfwTerminate();
 }
 
 // ---- static callbacks ----
-void App::framebufferResizeCallback(GLFWwindow*, int, int) {}
+void App::FramebufferResizeCallback(GLFWwindow*, int, int) {}
 
-void App::keyCallback(GLFWwindow* win, int key, int, int action, int) {
+void App::KeyCallback(GLFWwindow* win, int key, int, int action, int) {
     auto* app = static_cast<App*>(glfwGetWindowUserPointer(win));
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         if (app->m_captureMouse) {
@@ -206,7 +206,7 @@ void App::keyCallback(GLFWwindow* win, int key, int, int action, int) {
     }
 }
 
-void App::mouseButtonCallback(GLFWwindow* win, int button, int action, int) {
+void App::MouseButtonCallback(GLFWwindow* win, int button, int action, int) {
     // Don't capture mouse if ImGui wants the click
     if (ImGui::GetIO().WantCaptureMouse) return;
     auto* app = static_cast<App*>(glfwGetWindowUserPointer(win));

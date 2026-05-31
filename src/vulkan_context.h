@@ -14,24 +14,24 @@ struct SwapchainSupport {
 
 class VulkanContext {
 public:
-    void init(GLFWwindow* window);
-    void initImGui();   // call after init()
-    void destroy();
+    void Init(GLFWwindow* window);
+    void InitImGui();   // call after Init()
+    void Destroy();
 
     // (Re)build the graphics pipeline with the given SPIR-V files
-    void buildPipeline(const std::string& vertSpv, const std::string& fragSpv);
-    void destroyPipeline();
+    void BuildPipeline(const std::string& vertSpv, const std::string& fragSpv);
+    void DestroyPipeline();
 
     // Draw one frame; returns false if swapchain needs rebuild
-    bool drawFrame(const PushConstants& pc);
+    bool DrawFrame(const PushConstants& pc);
 
     // Recreate swapchain (e.g. after resize)
-    void recreateSwapchain(int w, int h);
+    void RecreateSwapchain(int w, int h);
 
-    VkDevice device = VK_NULL_HANDLE;
+    VkDevice m_device = VK_NULL_HANDLE;
 
 private:
-    // ---- instance / device ----
+    // ---- instance / m_device ----
     VkInstance               m_instance       = VK_NULL_HANDLE;
     VkDebugUtilsMessengerEXT m_debugMessenger  = VK_NULL_HANDLE;
     VkSurfaceKHR             m_surface         = VK_NULL_HANDLE;
@@ -71,26 +71,26 @@ private:
     GLFWwindow* m_window = nullptr;
 
     // ---- helpers ----
-    void createInstance();
-    void setupDebugMessenger();
-    void createSurface();
-    void pickPhysicalDevice();
-    void createLogicalDevice();
-    void createSwapchain(int w, int h);
-    void createImageViews();
-    void createRenderPass();
-    void createFramebuffers();
-    void createCommandPool();
-    void createCommandBuffers();
-    void createSyncObjects();
-    void cleanupSwapchain();
+    void CreateInstance();
+    void SetupDebugMessenger();
+    void CreateSurface();
+    void PickPhysicalDevice();
+    void CreateLogicalDevice();
+    void CreateSwapchain(int w, int h);
+    void CreateImageViews();
+    void CreateRenderPass();
+    void CreateFramebuffers();
+    void CreateCommandPool();
+    void CreateCommandBuffers();
+    void CreateSyncObjects();
+    void CleanupSwapchain();
 
-    void initImGuiImpl();
-    void destroyImGuiImpl();
+    void InitImGuiImpl();
+    void DestroyImGuiImpl();
 
-    VkShaderModule loadSpirV(const std::string& path);
-    SwapchainSupport querySwapchainSupport(VkPhysicalDevice dev);
-    VkSurfaceFormatKHR chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
-    VkPresentModeKHR   choosePresentMode(const std::vector<VkPresentModeKHR>&);
-    VkExtent2D         chooseExtent(const VkSurfaceCapabilitiesKHR&, int w, int h);
+    VkShaderModule LoadSpirV(const std::string& path);
+    SwapchainSupport QuerySwapchainSupport(VkPhysicalDevice dev);
+    VkSurfaceFormatKHR ChooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&);
+    VkPresentModeKHR   ChoosePresentMode(const std::vector<VkPresentModeKHR>&);
+    VkExtent2D         ChooseExtent(const VkSurfaceCapabilitiesKHR&, int w, int h);
 };

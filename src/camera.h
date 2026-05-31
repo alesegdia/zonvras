@@ -4,15 +4,15 @@
 
 class Camera {
 public:
-    glm::vec3 position{0.f, 0.f, 5.f};
-    glm::quat orientation{1.f, 0.f, 0.f, 0.f};
+    glm::vec3 m_position{0.f, 0.f, 5.f};
+    glm::quat m_orientation{1.f, 0.f, 0.f, 0.f};
 
-    float yaw   = 0.f;
-    float pitch = 0.f;
+    float m_yaw   = 0.f;
+    float m_pitch = 0.f;
 
-    void processKeyboard(float forward, float right, float up, float dt, float speed);
-    void processMouse(float dx, float dy, float sensitivity = 0.002f);
+    void ProcessKeyboard(float forward, float Right, float up, float dt, float speed);
+    void ProcessMouse(float dx, float dy, float sensitivity = 0.002f);
 
-    glm::vec3 front() const;
-    glm::vec3 right() const;
+    glm::vec3 Front() const;
+    glm::vec3 Right() const;
 };

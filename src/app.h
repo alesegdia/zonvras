@@ -14,7 +14,7 @@ struct Example {
 
 class App {
 public:
-    void run();
+    void Run();
 
 private:
     GLFWwindow*   m_window  = nullptr;
@@ -34,15 +34,15 @@ private:
 
     std::string m_vertSpv;
 
-    void initWindow();
-    void discoverExamples();
-    void switchToExample(int index);
-    void mainLoop();
-    void cleanup();
-    void handleInput(float dt);
-    void buildUI();          // ImGui windows
+    void InitWindow();
+    void DiscoverExamples();
+    void SwitchToExample(int index);
+    void MainLoop();
+    void Cleanup();
+    void HandleInput(float dt);
+    void BuildUI();          // ImGui windows
 
-    static void framebufferResizeCallback(GLFWwindow* win, int w, int h);
-    static void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods);
-    static void mouseButtonCallback(GLFWwindow* win, int button, int action, int mods);
+    static void FramebufferResizeCallback(GLFWwindow* win, int w, int h);
+    static void KeyCallback(GLFWwindow* win, int key, int scancode, int action, int mods);
+    static void MouseButtonCallback(GLFWwindow* win, int button, int action, int mods);
 };

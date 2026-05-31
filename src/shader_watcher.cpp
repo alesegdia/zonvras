@@ -7,7 +7,7 @@ ShaderWatcher::ShaderWatcher(const std::string& path)
     m_lastWrite = std::filesystem::last_write_time(m_path, ec);
 }
 
-bool ShaderWatcher::changed() {
+bool ShaderWatcher::Changed() {
     std::error_code ec;
     auto t = std::filesystem::last_write_time(m_path, ec);
     if (ec) return false;
